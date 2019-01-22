@@ -15,13 +15,17 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web;
 using PowerBIEmbedded_AppOwnsData.Models;
+using Microsoft.SqlServer.Dts.Runtime;
 using System.IO;
+using System.Web.UI;
 
 namespace PowerBIEmbedded_AppOwnsData.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IEmbedService m_embedService;
+        private static readonly string RutaFS = ConfigurationManager.AppSettings["RutaFS"];
+        public System.Web.UI.ClientScriptManager ClientScript { get; }
 
         public HomeController()
         {
@@ -78,24 +82,29 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
             }
         }
 
-       
+
 
 
         [HttpPost]
         public ActionResult Subir(HttpPostedFileBase file, String mes, String año)
         {
 
-                string archivo =año + mes + file.FileName;
-                string con = System.Configuration.ConfigurationManager.ConnectionStrings["DBInversionRO"].ConnectionString;
+            string con = System.Configuration.ConfigurationManager.ConnectionStrings["DBInversionRO"].ConnectionString;
             SqlConnection conexion = null;
-                SqlTransaction transaccion = null;
-                String tempPath = "//srvprodbd-ds/ETL/RO_CONSOLIDADO/Archivos/" + archivo;
-                file.SaveAs(tempPath);
-                conexion = new SqlConnection
+            SqlTransaction transaccion = null;
+
+            string archivo = Path.GetFileName( file.FileName);
+            String tempPath = RutaFS + archivo;
+             file.SaveAs(tempPath);
+
+            //EjecutarETL(tempPath, año + mes + "01");
+            conexion = new SqlConnection
                 {
                     ConnectionString = con
                 };
                 conexion.Open();
+
+
                 transaccion = conexion.BeginTransaction(System.Data.IsolationLevel.Serializable);
                 SqlCommand comando = new SqlCommand("ETL_RO", conexion, transaccion);
                 comando.CommandType = CommandType.StoredProcedure;
@@ -103,7 +112,10 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
                 comando.Parameters.AddWithValue("@ExcelPath", tempPath);
                 comando.Parameters.AddWithValue("@periodo", año + mes + "01");
                 comando.BeginExecuteNonQuery(new AsyncCallback(AsyncCommandCompletionCallback), comando);
-            return RedirectToAction("index");
+              
+
+            return RedirectToAction("Index");
+
         }
 
         private void AsyncCommandCompletionCallback(IAsyncResult result)
@@ -118,6 +130,44 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
             {
             }
         }
+
+        public void EjecutarETL(String path, String periodo)
+        {
+
+            string pkgLocation;
+            Package pkg;
+            Application app;
+            DTSExecResult pkgResults;
+
+            MyEventListener eventListener = new MyEventListener();
+
+            pkgLocation =
+              @"\\srvprodbd-ds\ETL\RO_CONSOLIDADO\CargaConcepto.dtsx";
+
+            app = new Application();
+            pkg = app.LoadPackage(pkgLocation, eventListener);
+            Variables vars = pkg.Variables;
+
+            vars["ExcelPath"].Value = path;
+
+            pkgResults = pkg.Execute(null, null, eventListener, null, null);
+
+            Console.WriteLine(pkgResults.ToString());
+            Console.ReadKey();
+        }
+
+        class MyEventListener : DefaultEvents
+        {
+            public override bool OnError(DtsObject source, int errorCode, string subComponent,
+              string description, string helpFile, int helpContext, string idofInterfaceWithError)
+            {
+                // Add application-specific diagnostics here.  
+                Console.WriteLine("Error in {0}/{1} : {2}", source, subComponent, description);
+                return false;
+            }
+        }
     }
+
+   
 
 }
