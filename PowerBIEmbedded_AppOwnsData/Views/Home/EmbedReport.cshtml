@@ -1,0 +1,184 @@
+﻿@model PowerBIEmbedded_AppOwnsData.Models.EmbedConfig
+@{
+    ViewBag.Title = "Index";
+}
+<script src="https://npmcdn.com/es6-promise@3.2.1"></script>
+<script src="~/scripts/powerbi.js"></script>
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div id="errorWrapper">
+        <h2>
+            Error
+        </h2>
+        <pre>
+            @Model.ErrorMessage
+        </pre>
+    </div>
+
+    return;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <meta name="author" content="Víctor Lliuya" />
+    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+"
+          crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/style.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="wrapper">
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element">
+                            <span>
+                                <img ID="imgFoto1" Class="img-circle" Height="48px" Width="48px"
+                                     src="~/Content/img/profile_small.png" />
+                            </span>
+                            <span class="clear" style="color: rgb(0, 0, 0);">
+                                <span class="block m-t-xs">Bienvenido</span>
+                                <span class="text- text-xs block">
+                                    <strong class="font-bold">
+                                    </strong>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="logo-element">
+                            <img ID="imgFoto2" Class="img-circle" Height="48px" Width="48px"
+                                 src="~/Content/img/profile_small.png" />
+                        </div>
+                    </li>
+                    <li id="li-especialidad">
+                        <a href="@Url.Action("Index","Home")">
+                            <i class="fa fa-upload"></i>
+                            <span class="nav-label">Carga de información</span>
+                        </a>
+                    </li>
+                    <li id="li-metrados">
+                        <a href="@Url.Action("EmbedReport", "Home")">
+                            <i class="fa fa-clipboard"></i>
+                            <span class="nav-label">Reportes</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </nav>
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-default " href="#"><i class="fa fa-bars"></i></a>
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <a href="https://www.cosapi.com.pe">Internet</a>
+                        </li>
+                        <li>
+                            <a href="https://intranet.cosapi.com.pe">Intranet</a>
+                        </li>
+                        <li>
+                            <img src="~/Content/img/logo.jpg" height="45">
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="row wrapper border-bottom white-bg page-heading" style="margin-top: 10px;">
+                <div class="col-md-8">
+                </div>
+                <div class="col-md-4 text-right">
+                    <h1 style="color: #01aaeb; text-decoration: none; line-height: inherit;"><a href="#">RO Consolidado</a></h1>
+                </div>
+            </div>
+            <div class="wrapper wrapper-content animated fadeInRight">
+                    @using (Html.BeginForm())
+                    {
+                        <div id="RLSdiv" hidden="hidden">
+                            <div class="inputLineTitle">User name</div>
+                            <input type="text" name="username" value="@Model.Username" />
+                            <h8>User name is always required for RLS.</h8>
+                            <div class="inputLineTitle">Roles</div>
+                            <input type="text" name="roles" value="@Model.Roles" />
+                            <h8>Comma separeted roles, optional for SSAS, mandatory for roles defined in pbix</h8>
+                            <br /><br />
+                            <input type="submit" value="Reload" />
+                            <br /><br />
+                        </div>
+                    }
+                </div>
+                <div id="reportContainer"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+@Html.Partial("LiveDemoLink")
+<script>
+    // Read embed application token from Model
+    var accessToken = "@Model.EmbedToken.Token";
+
+    // Read embed URL from Model
+    var embedUrl = "@Html.Raw(Model.EmbedUrl)";
+
+    // Read report Id from Model
+    var embedReportId = "@Model.Id";
+
+    // Get models. models contains enums that can be used.
+    var models = window['powerbi-client'].models;
+
+    // Embed configuration used to describe the what and how to embed.
+    // This object is used when calling powerbi.embed.
+    // This also includes settings and options such as filters.
+    // You can find more information at https://github.com/Microsoft/PowerBI-JavaScript/wiki/Embed-Configuration-Details.
+    var config = {
+        type: 'report',
+        tokenType: models.TokenType.Embed,
+        accessToken: accessToken,
+        embedUrl: embedUrl,
+        id: embedReportId,
+        permissions: models.Permissions.All,
+        settings: {
+            filterPaneEnabled: true,
+            navContentPaneEnabled: true
+        }
+    };
+
+    // Get a reference to the embedded report HTML element
+    var reportContainer = $('#reportContainer')[0];
+
+    if ("@Model.Username" != "") {
+        $("#RLS").prop('checked', true);
+        $("#RLSdiv").show();
+    }
+    else
+    {
+        $("#RLS").prop('checked', false);
+        $("#RLSdiv").hide();
+    }
+
+    if ("@Model.IsEffectiveIdentityRequired.GetValueOrDefault()" == "True") {
+        $("#noRLSdiv").hide();
+        $("#RLS").removeAttr("disabled");
+        $("#RLS").change(function () {
+            if ($(this).is(":checked")) {
+                $("#RLSdiv").show(300);
+            } else {
+                $("#RLSdiv").hide(200);
+            }
+        });
+    }
+    else
+    {
+        $("#noRLSdiv").show();
+    }
+    // Embed the report and display it within the div container.
+    var report = powerbi.embed(reportContainer, config);
+</script>

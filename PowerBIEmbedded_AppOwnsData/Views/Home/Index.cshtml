@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <meta name="author" content="Víctor Lliuya" />
+    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+"
+          crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/style.css" rel="stylesheet" />
+</head>
+
+<style>
+
+    #myProgress {
+        width: 100%;
+        background-color: #dddddd;
+        margin-top: 10px;
+        color: white;
+    }
+
+    #myBar {
+        width: 1%;
+        height: 30px;
+        background-color: #4CAF50;
+        text-align: center;
+        line-height: 30px;
+        color: white;
+    }
+
+</style>
+
+<body>
+    <div id="wrapper">
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element">
+                            <span>
+                                <img ID="imgFoto1" Class="img-circle" Height="48px" Width="48px"
+                                     src="~/Content/img/profile_small.png" />
+                            </span>
+                            <span class="clear" style="color: rgb(0, 0, 0);">
+                                <span class="block m-t-xs">Bienvenido</span>
+                                <span class="text- text-xs block">
+                                    <strong class="font-bold">
+                                    </strong>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="logo-element">
+                            <img ID="imgFoto2" Class="img-circle" Height="48px" Width="48px"
+                                 src="~/Content/img/profile_small.png" />
+                        </div>
+                    </li>
+                    <li id="li-especialidad">
+                        <a href="@Url.Action("Index","Home")">
+                            <i class="fa fa-upload"></i>
+                            <span class="nav-label">Carga de información</span>
+                        </a>
+                    </li>
+                    <li id="li-metrados">
+                        <a href="@Url.Action("EmbedReport", "Home")">
+                            <i class="fa fa-clipboard"></i>
+                            <span class="nav-label">Reportes</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </nav>
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-default " href="#"><i class="fa fa-bars"></i></a>
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <a href="https://www.cosapi.com.pe">Internet</a>
+                        </li>
+                        <li>
+                            <a href="https://intranet.cosapi.com.pe">Intranet</a>
+                        </li>
+                        <li>
+                            <img src="~/Content/img/logo.jpg" height="45">
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="row wrapper border-bottom white-bg page-heading" style="margin-top: 10px;">
+                <div class="col-md-8">
+                </div>
+                <div class="col-md-4 text-right">
+                    <h1 style="color: #01aaeb; text-decoration: none; line-height: inherit;"><a href="#">RO Consolidado</a></h1>
+                </div>
+            </div>
+            <div class="wrapper wrapper-content animated fadeInRight">
+                <div class="panel  panel-primary">
+                    <div class="panel-heading">Cargar Archivo</div>
+                    <div class="panel-body">
+
+                        @using (Html.BeginForm("Subir", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            <p>Seleccione el periodo del archivo a cargar : </p>
+                            <br />
+                            <div style="display: flex; align-items: center">
+                                <div class="col-md-1">
+                                    <label for="exampleInputName2">Mes </label>
+                                </div>
+                                <div class="col-md-3">
+                                    <select ID="txtMes" Class="form-control" name="mes">
+                                        <option Selected="True" Value="01"> Enero </option>
+                                        <option Value="02"> Febrero </option>
+                                        <option Value="03"> Marzo </option>
+                                        <option Value="04"> Abril</option>
+                                        <option Value="05">Mayo</option>
+                                        <option Value="06"> Junio </option>
+                                        <option Value="07">Julio</option>
+                                        <option Value="08"> Agosto</option>
+                                        <option Value="09">Septiembre</option>
+                                        <option Value="10">Octubre</option>
+                                        <option Value="11">Noviembre</option>
+                                        <option Value="12">Diciembre</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <label for="exampleInputName2">Año </label>
+                                </div>
+                                <div class="col-md-3">
+                                    <select ID="txtAño" Class="form-control" name="año">
+                                        <option Selected="True" Value="2019"> 2019 </option>
+                                        <option Value="2018"> 2018 </option>
+                                        <option Value="2017"> 2017 </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="file" name="file" />
+                                </div>
+
+                            </div>
+                            <br />
+                            <center>
+                                <div onclick="move()">
+                                    <button type="submit" class="btn btn-primary">Cargar Archivo</button>
+                                </div>
+
+                            </center>
+                        }
+                        <!--
+    <div id="myProgress">
+        <div id="myBar">0%</div>
+    </div>
+        -->
+                    </div>
+                </div>
+
+                <div class="panel  panel-primary">
+                    <div class="panel-heading">Descargar archivos de periodos anteriores</div>
+                    <div class="panel-body">
+                        <p>Seleccione el periodo del archivo a descargar : </p>
+                        <br />
+                        <div style="display: flex; align-items: center; justify-content:center">
+                            <div class="col-md-1">
+                                <label for="exampleInputName2">Mes </label>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="txtMes_2" Class="form-control" name="mes_2">
+                                    <option Selected="True" Value="01"> Enero </option>
+                                    <option Value="02"> Febrero </option>
+                                    <option Value="03"> Marzo </option>
+                                    <option Value="04"> Abril</option>
+                                    <option Value="05">Mayo</option>
+                                    <option Value="06"> Junio </option>
+                                    <option Value="07">Julio</option>
+                                    <option Value="08"> Agosto</option>
+                                    <option Value="09">Septiembre</option>
+                                    <option Value="10">Octubre</option>
+                                    <option Value="11">Noviembre</option>
+                                    <option Value="12">Diciembre</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <label for="exampleInputName2">Año </label>
+                            </div>
+                            <div class="col-md-3">
+                                <select ID="txtAño_2" class="form-control" name="año_2">
+                                    <option Selected="True" Value="2019"> 2019 </option>
+                                    <option Value="2018"> 2018 </option>
+                                    <option Value="2017"> 2017 </option>
+                                </select>
+                            </div>
+                        </div>
+                        <br />
+                        <center>
+                            <button ID="BtnDescargar" Text="Descargar Archivo " class="btn btn-primary">Descargar archivo</button>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<script type="text/javascript">
+    function move() {
+        var elem = document.getElementById("myBar");
+        var width = 1;
+        var id = setInterval(frame, 360000 );
+        function frame() {
+            if (width >= 100) {
+                clearInterval(id);
+                elem.innerHTML = "Información Cargada";
+            } else {
+                width++;
+                elem.style.width = width + '%';
+                elem.innerHTML = width * 1 + '%';
+            }
+        }
+    }
+</script>
+
+
+</body>
+</html>
