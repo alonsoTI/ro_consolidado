@@ -17,6 +17,7 @@ using System.Web;
 using PowerBIEmbedded_AppOwnsData.Models;
 using Microsoft.SqlServer.Dts.Runtime;
 using System.IO;
+using PowerBIEmbedded_AppOwnsData.Models;
 using System.Web.UI;
 
 namespace PowerBIEmbedded_AppOwnsData.Controllers
@@ -25,6 +26,8 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
     {
         private readonly IEmbedService m_embedService;
         private static readonly string RutaFS = ConfigurationManager.AppSettings["RutaFS"];
+        
+        
         public System.Web.UI.ClientScriptManager ClientScript { get; }
 
         public HomeController()
@@ -82,43 +85,94 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
             }
         }
 
-
-
+        public ActionResult ModalPopUp()
+        {
+            return View();
+        }
 
         [HttpPost]
-        public ActionResult Subir(HttpPostedFileBase file, String mes, String año)
+        public FileResult Descargar(String mes_2, String año_2) {
+            byte[] fileBytes = System.IO.File.ReadAllBytes(@"\\srvprodbd-ds\ETL\RO_CONSOLIDADO\Archivos\"+ "ROC - " + año_2 + mes_2+"01.xlsx");
+            string fileName = "ROC - " + año_2 + mes_2+"01.xlsx";
+            return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, fileName);
+        }
+
+        [HttpPost]
+        public ActionResult Subir(FormCollection collection)
         {
+            String mes = collection["mes"];
+            String año = collection["año"];
+            Resultado resultado;
 
-            string con = System.Configuration.ConfigurationManager.ConnectionStrings["DBInversionRO"].ConnectionString;
-            SqlConnection conexion = null;
-            SqlTransaction transaccion = null;
+            if (Request.Files.Count > 0)
+            {
+                try
+                {
+                    HttpFileCollectionBase files = Request.Files;
+                    for (int i = 0; i < files.Count; i++)
+                    {
+                        HttpPostedFileBase file = files[i];
+                                                if (file == null || file.ContentLength == 0)
+                        {
+                            resultado = new Resultado();
+                            resultado.Código_resultado = "Empty";
+                            resultado.Detalle_resultado = "El archivo está vacío";
 
-            string archivo = Path.GetFileName( file.FileName);
-            String tempPath = RutaFS + archivo;
-             file.SaveAs(tempPath);
+                            return Json(resultado, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            if (file.FileName.EndsWith("xls") || file.FileName.EndsWith("xlsx"))
+                            {
+                                string fname;
+                                fname = Server.MapPath("~/Content/" + "ROC-" + año + mes + ".xlsx");
+                                file.SaveAs(fname);
+                            }
+                            else {
+                                resultado = new Resultado();
+                                resultado.Código_resultado = "NotExcel";
+                                resultado.Detalle_resultado = "Sólo se admiten archivos de formato .xls o .xlsx (Archivos Excel)";
 
-            //EjecutarETL(tempPath, año + mes + "01");
+                                return Json(resultado, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                    }
+                    resultado = new Resultado();
+                    resultado.Código_resultado = "OK";
+                    resultado.Detalle_resultado = "Archivo cargado correctamente";
+                    return Json(resultado, JsonRequestBehavior.AllowGet);
+                }
+                catch (Exception ex)
+                {
+                    return Json("Error occurred. Error details: " + ex.Message);
+                }
+            }
+            else
+            {
+                resultado = new Resultado();
+                resultado.Código_resultado = "Empty";
+                resultado.Detalle_resultado = "Es necesario cargar el formato del RO";
+                return Json(resultado, JsonRequestBehavior.AllowGet);
+            }
+
+            /*
             conexion = new SqlConnection
                 {
                     ConnectionString = con
                 };
                 conexion.Open();
-
-
                 transaccion = conexion.BeginTransaction(System.Data.IsolationLevel.Serializable);
                 SqlCommand comando = new SqlCommand("ETL_RO", conexion, transaccion);
                 comando.CommandType = CommandType.StoredProcedure;
                 comando.Parameters.Clear();
                 comando.Parameters.AddWithValue("@ExcelPath", tempPath);
                 comando.Parameters.AddWithValue("@periodo", año + mes + "01");
-                comando.BeginExecuteNonQuery(new AsyncCallback(AsyncCommandCompletionCallback), comando);
-              
+                comando.BeginExecuteNonQuery(new AsyncCallback(EjecutarSP), comando);
 
-            return RedirectToAction("Index");
-
+    */
         }
 
-        private void AsyncCommandCompletionCallback(IAsyncResult result)
+        private void EjecutarSP(IAsyncResult result)
         {
             SqlCommand cmd = null;
             try
@@ -128,6 +182,7 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
             }
             catch (Exception ex)
             {
+
             }
         }
 
@@ -166,6 +221,15 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
                 return false;
             }
         }
+
+        [HttpPost]
+        public JsonResult  Barra()
+        {
+            return Json("'Success':true");
+        }
+
+ 
+
     }
 
    

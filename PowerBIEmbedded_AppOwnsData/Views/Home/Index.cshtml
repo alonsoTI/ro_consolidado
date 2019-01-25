@@ -29,7 +29,6 @@
         line-height: 30px;
         color: white;
     }
-
 </style>
 
 <body>
@@ -102,62 +101,59 @@
                 <div class="panel  panel-primary">
                     <div class="panel-heading">Cargar Archivo</div>
                     <div class="panel-body">
-
-                        @using (Html.BeginForm("Subir", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                        {
-                            <p>Seleccione el periodo del archivo a cargar : </p>
-                            <br />
-                            <div style="display: flex; align-items: center">
-                                <div class="col-md-1">
-                                    <label for="exampleInputName2">Mes </label>
-                                </div>
-                                <div class="col-md-3">
-                                    <select ID="txtMes" Class="form-control" name="mes">
-                                        <option Selected="True" Value="01"> Enero </option>
-                                        <option Value="02"> Febrero </option>
-                                        <option Value="03"> Marzo </option>
-                                        <option Value="04"> Abril</option>
-                                        <option Value="05">Mayo</option>
-                                        <option Value="06"> Junio </option>
-                                        <option Value="07">Julio</option>
-                                        <option Value="08"> Agosto</option>
-                                        <option Value="09">Septiembre</option>
-                                        <option Value="10">Octubre</option>
-                                        <option Value="11">Noviembre</option>
-                                        <option Value="12">Diciembre</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-1">
-                                    <label for="exampleInputName2">Año </label>
-                                </div>
-                                <div class="col-md-3">
-                                    <select ID="txtAño" Class="form-control" name="año">
-                                        <option Selected="True" Value="2019"> 2019 </option>
-                                        <option Value="2018"> 2018 </option>
-                                        <option Value="2017"> 2017 </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <input type="file" name="file" />
-                                </div>
-                        
+                        <p>Seleccione el periodo del archivo a cargar : </p>
+                        <br />
+                        <div style="display: flex; align-items: center">
+                            <div class="col-md-1">
+                                <label for="exampleInputName2">Mes </label>
                             </div>
-                            <br />
-                            <center>
-                                    <button type="submit" class="btn btn-primary">Cargar Archivo</button>
-                            </center>
-                        }
-                        <!--
-    <div id="myProgress">
-        <div id="myBar">0%</div>
-    </div>
-        -->
+                            <div class="col-md-3">
+                                <select ID="txtMes" Class="form-control">
+                                    <option Selected="True" Value="01"> Enero </option>
+                                    <option Value="02"> Febrero </option>
+                                    <option Value="03"> Marzo </option>
+                                    <option Value="04"> Abril</option>
+                                    <option Value="05">Mayo</option>
+                                    <option Value="06"> Junio </option>
+                                    <option Value="07">Julio</option>
+                                    <option Value="08"> Agosto</option>
+                                    <option Value="09">Septiembre</option>
+                                    <option Value="10">Octubre</option>
+                                    <option Value="11">Noviembre</option>
+                                    <option Value="12">Diciembre</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <label for="exampleInputName2">Año </label>
+                            </div>
+                            <div class="col-md-3">
+                                <select ID="txtAño" Class="form-control" >
+                                    <option Selected="True" Value="2019"> 2019 </option>
+                                    <option Value="2018"> 2018 </option>
+                                    <option Value="2017"> 2017 </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="file" id="FileUpload1" />
+                            </div>
+
+                        </div>
+                        <br />
+                        <center>
+                            <button class="btn btn-primary" id="btnUpload">Cargar Archivo</button>
+                        </center>
+
+                        <div id="myProgress">
+                            <div id="myBar">0%</div>
+                        </div>
+
                     </div>
                 </div>
 
                 <div class="panel  panel-primary">
                     <div class="panel-heading">Descargar archivos de periodos anteriores</div>
                     <div class="panel-body">
+
                         <p>Seleccione el periodo del archivo a descargar : </p>
                         <br />
                         <div style="display: flex; align-items: center; justify-content:center">
@@ -193,33 +189,97 @@
                         </div>
                         <br />
                         <center>
-                            <button ID="BtnDescargar" Text="Descargar Archivo " class="btn btn-primary">Descargar archivo</button>
+                            <button type="submit" class="btn btn-primary">Descargar archivo</button>
                         </center>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="myModal" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: block;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" onclick="cerrar()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">×</font></font></span></button>
+                    <h4 class="modal-title" id="myModalLabel"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Alerta</font></font></h4>
+                </div>
+                <div class="modal-body">
+                    <p id="alerta"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="cerrar()" class="btn btn-default" data-dismiss="modal"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Cerrar</font></font></button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
 
 
-<script type="text/javascript">
-    function move() {
-        var elem = document.getElementById("myBar");
-        var width = 1;
-        var id = setInterval(frame, 360000 );
-        function frame() {
-            if (width >= 100) {
-                clearInterval(id);
-                elem.innerHTML = "Información Cargada";
-            } else {
-                width++;
-                elem.style.width = width + '%';
-                elem.innerHTML = width * 1 + '%';
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        function cerrar() {
+            $("#myModal").hide();
+        }
+
+        $(document).ready(function () {
+            $("#myModal").hide();
+
+            $('#btnUpload').click(function () {
+                if (window.FormData !== undefined) {
+
+                    var fileUpload = $("#FileUpload1").get(0);
+                    var files = fileUpload.files;
+                    var fileData = new FormData();
+                    for (var i = 0; i < files.length; i++) {
+                        fileData.append(files[i].name, files[i]);
+                    }
+                    fileData.append('mes', document.getElementById("txtMes").value);
+                    fileData.append('año', document.getElementById("txtAño").value);
+
+                    $.ajax({
+                        url: '/Home/Subir',
+                        type: "POST",
+                        contentType: false, 
+                        processData: false, 
+                        data: fileData,
+                        success: function (result) {
+                                    
+                        },
+                        error: function (err) {
+                            alert(err.statusText);
+                        }
+                    });
+                } else {
+                    alert("FormData is not supported.");
+                }
+            });
+        });
+
+
+        function move() {
+            var elem = document.getElementById("myBar");
+            var width = 1;
+            var id = setInterval(frame, 10);
+            function frame() {
+                if (width >= 100) {
+                    clearInterval(id);
+                    elem.innerHTML = "Información Cargada";
+                } else {
+                    width++;
+                    elem.style.width = width + '%';
+                    elem.innerHTML = width * 1 + '%';
+                }
             }
         }
-    }
-</script>
+    </script>
 
 
 </body>

@@ -165,6 +165,7 @@
     </Compile>
     <Compile Include="Models\EmbedConfig.cs" />
     <Compile Include="Models\IndexConfig.cs" />
+    <Compile Include="Models\Resultado.cs" />
     <Compile Include="Models\TileEmbedConfig.cs" />
     <Compile Include="Models\UploadFilesResultcs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -216,6 +217,7 @@
     <None Include="Project_Readme.html" />
     <Content Include="scripts\powerbi.js.map" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <Content Include="Views\Home\ModalPopUp.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

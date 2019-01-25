@@ -89,9 +89,9 @@ namespace PowerBIEmbedded_AppOwnsData.Services
                         m_embedConfig.ErrorMessage = "No report with the given ID was found in the workspace. Make sure ReportId is valid.";
                         return false;
                     }
-                    object resultado = await client.Datasets.RefreshDatasetInGroupAsync("9ec2314f-7fb4-4483-a404-af50510e29ac", report.DatasetId);
-                    
 
+
+                    object resultado = await client.Datasets.RefreshDatasetInGroupAsync("9ec2314f-7fb4-4483-a404-af50510e29ac", report.DatasetId);
                     var datasets =  client.Datasets.GetDatasetByIdInGroup(WorkspaceId, report.DatasetId);
                     m_embedConfig.IsEffectiveIdentityRequired = datasets.IsEffectiveIdentityRequired;
                     m_embedConfig.IsEffectiveIdentityRolesRequired = datasets.IsEffectiveIdentityRolesRequired;
