@@ -90,13 +90,17 @@
                     </ul>
                 </nav>
             </div>
-            <div class="row wrapper border-bottom white-bg page-heading" style="margin-top: 10px;">
-                <div class="col-md-8">
-                </div>
-                <div class="col-md-4 text-right">
-                    <h1 style="color: #01aaeb; text-decoration: none; line-height: inherit;"><a href="#">RO Consolidado</a></h1>
-                </div>
-            </div>
+
+            
+    <div class="row wrapper border-bottom white-bg page-heading" style="margin-top: 10px;">
+        <div class="col-md-8">
+        </div>
+
+        <div class="col-md-4 text-right">
+            <h1 style="color: #01aaeb; text-decoration: none; line-height: inherit;"><a href="#">RO Consolidado</a></h1>
+        </div>
+    </div>
+        
             <div class="wrapper wrapper-content animated fadeInRight">
                 <div class="panel  panel-primary">
                     <div class="panel-heading">Cargar Archivo</div>
@@ -127,7 +131,7 @@
                                 <label for="exampleInputName2">Año </label>
                             </div>
                             <div class="col-md-3">
-                                <select ID="txtAño" Class="form-control" >
+                                <select ID="txtAño" Class="form-control">
                                     <option Selected="True" Value="2019"> 2019 </option>
                                     <option Value="2018"> 2018 </option>
                                     <option Value="2017"> 2017 </option>
@@ -215,7 +219,9 @@
         </div><!-- /.modal-dialog -->
     </div>
 
+    <div  id="fondo">
 
+    </div>
 
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -224,6 +230,12 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript">
+
+        function alerta(mensaje) {
+            document.getElementById("alerta").innerHTML = mensaje;
+            $("#myModal").show();
+            
+        }
 
         function cerrar() {
             $("#myModal").hide();
@@ -251,14 +263,19 @@
                         processData: false, 
                         data: fileData,
                         success: function (result) {
-                                    
+                            if (result.Código_resultado = "OK") {
+                                alerta(result.Detalle_resultado);
+                                move();
+                            } else {
+                                alerta(resultDetalle_resultado);
+                            }
                         },
                         error: function (err) {
                             alert(err.statusText);
                         }
                     });
                 } else {
-                    alert("FormData is not supported.");
+                    alerta("FormData is not supported.");
                 }
             });
         });
@@ -267,11 +284,12 @@
         function move() {
             var elem = document.getElementById("myBar");
             var width = 1;
-            var id = setInterval(frame, 10);
+            var id = setInterval(frame, 540000);
             function frame() {
                 if (width >= 100) {
                     clearInterval(id);
                     elem.innerHTML = "Información Cargada";
+                    
                 } else {
                     width++;
                     elem.style.width = width + '%';

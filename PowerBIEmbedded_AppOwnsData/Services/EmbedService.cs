@@ -91,7 +91,7 @@ namespace PowerBIEmbedded_AppOwnsData.Services
                     }
 
 
-                    object resultado = await client.Datasets.RefreshDatasetInGroupAsync("9ec2314f-7fb4-4483-a404-af50510e29ac", report.DatasetId);
+                    //object resultado = client.Datasets.RefreshDatasetInGroup("9ec2314f-7fb4-4483-a404-af50510e29ac", report.DatasetId);
                     var datasets =  client.Datasets.GetDatasetByIdInGroup(WorkspaceId, report.DatasetId);
                     m_embedConfig.IsEffectiveIdentityRequired = datasets.IsEffectiveIdentityRequired;
                     m_embedConfig.IsEffectiveIdentityRolesRequired = datasets.IsEffectiveIdentityRolesRequired;

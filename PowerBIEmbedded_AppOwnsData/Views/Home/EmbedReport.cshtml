@@ -72,7 +72,7 @@
         </nav>
         <div id="page-wrapper" class="gray-bg">
             <div class="row border-bottom">
-                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                @*<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
                     <div class="navbar-header">
                         <a class="navbar-minimalize minimalize-styl-2 btn btn-default " href="#"><i class="fa fa-bars"></i></a>
                     </div>
@@ -87,15 +87,15 @@
                             <img src="~/Content/img/logo.jpg" height="45">
                         </li>
                     </ul>
-                </nav>
+                </nav>*@
             </div>
-            <div class="row wrapper border-bottom white-bg page-heading" style="margin-top: 10px;">
+           @*<div class="row wrapper border-bottom white-bg page-heading" style="margin-top: 10px;">
                 <div class="col-md-8">
                 </div>
                 <div class="col-md-4 text-right">
                     <h1 style="color: #01aaeb; text-decoration: none; line-height: inherit;"><a href="#">RO Consolidado</a></h1>
                 </div>
-            </div>
+            </div>*@
             <div class="wrapper wrapper-content animated fadeInRight">
                     @using (Html.BeginForm())
                     {
@@ -146,7 +146,7 @@
         id: embedReportId,
         permissions: models.Permissions.All,
         settings: {
-            filterPaneEnabled: true,
+            filterPaneEnabled: false,
             navContentPaneEnabled: true
         }
     };

@@ -202,7 +202,7 @@ h5 {
 
 .nav-header {
     padding: 33px 25px;
-    background: url("patterns/header-profile-skin-1.png") no-repeat;
+   /* background: url("patterns/header-profile-skin-1.png") no-repeat;*/
 }
 
 .pace-done .nav-header {
@@ -3369,6 +3369,7 @@ video {
 #wrapper {
     width: 100%;
     overflow-x: hidden;
+    height: 100vh;
 }
 
 .wrapper {

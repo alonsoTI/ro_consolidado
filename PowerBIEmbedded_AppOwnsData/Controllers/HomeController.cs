@@ -97,6 +97,31 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
             return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, fileName);
         }
 
+        public void SP_ETL(String tempPath, String periodo)
+        {
+            String con = ConfigurationManager.ConnectionStrings["DBInversionRO"].ConnectionString;
+            SqlConnection conexion = null;
+            SqlTransaction transaccion = null;
+
+            try
+            {
+                conexion = new SqlConnection();
+                conexion.ConnectionString = con;
+                conexion.Open();
+                transaccion = conexion.BeginTransaction(System.Data.IsolationLevel.Serializable);
+                SqlCommand comando = new SqlCommand("ETL_RO", conexion, transaccion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Clear();
+                comando.Parameters.AddWithValue("@ExcelPath", tempPath);
+                comando.Parameters.AddWithValue("@periodo",periodo + "01");
+                comando.BeginExecuteNonQuery(new AsyncCallback(EjecutarSP), comando);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+            }
+        }
+
         [HttpPost]
         public ActionResult Subir(FormCollection collection)
         {
@@ -109,10 +134,9 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
                 try
                 {
                     HttpFileCollectionBase files = Request.Files;
-                    for (int i = 0; i < files.Count; i++)
-                    {
-                        HttpPostedFileBase file = files[i];
-                                                if (file == null || file.ContentLength == 0)
+                   
+                        HttpPostedFileBase file = files[0];
+                        if (file == null || file.ContentLength == 0)
                         {
                             resultado = new Resultado();
                             resultado.Código_resultado = "Empty";
@@ -124,9 +148,11 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
                         {
                             if (file.FileName.EndsWith("xls") || file.FileName.EndsWith("xlsx"))
                             {
-                                string fname;
-                                fname = Server.MapPath("~/Content/" + "ROC-" + año + mes + ".xlsx");
+                                string fname = "//srvprodbd-ds/ETL/RO_CONSOLIDADO/Archivos/" + "ROC-" + año + mes + ".xlsx"; 
                                 file.SaveAs(fname);
+                                string periodo = año + mes + "01";
+
+                                  SP_ETL(fname,año+mes);
                             }
                             else {
                                 resultado = new Resultado();
@@ -136,7 +162,9 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
                                 return Json(resultado, JsonRequestBehavior.AllowGet);
                             }
                         }
-                    }
+                    
+
+
                     resultado = new Resultado();
                     resultado.Código_resultado = "OK";
                     resultado.Detalle_resultado = "Archivo cargado correctamente";
@@ -154,6 +182,8 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
                 resultado.Detalle_resultado = "Es necesario cargar el formato del RO";
                 return Json(resultado, JsonRequestBehavior.AllowGet);
             }
+
+
 
             /*
             conexion = new SqlConnection
