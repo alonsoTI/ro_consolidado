@@ -59,6 +59,19 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
             }
         }
 
+        public async Task<ActionResult> EmbedReportWithRefresh(string username, string roles)
+        {
+            var embedResult = await m_embedService.EmbedReportWithRefresh(username, roles);
+            if (embedResult)
+            {
+                return View(m_embedService.EmbedConfig);
+            }
+            else
+            {
+                return View(m_embedService.EmbedConfig);
+            }
+        }
+
         public async Task<ActionResult> EmbedDashboard()
         {
             var embedResult = await m_embedService.EmbedDashboard();
@@ -92,7 +105,7 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
 
         [HttpPost]
         public FileResult Descargar(String mes_2, String año_2) {
-            byte[] fileBytes = System.IO.File.ReadAllBytes(@"\\srvprodbd-ds\ETL\RO_CONSOLIDADO\Archivos\"+ "ROC - " + año_2 + mes_2+"01.xlsx");
+            byte[] fileBytes = System.IO.File.ReadAllBytes(@"\\srvprodbd-ds\ETL\RO_CONSOLIDADO\Archivos\"+ "ROC-" + año_2 + mes_2+"01.xlsx");
             string fileName = "ROC - " + año_2 + mes_2+"01.xlsx";
             return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, fileName);
         }
@@ -148,17 +161,16 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
                         {
                             if (file.FileName.EndsWith("xls") || file.FileName.EndsWith("xlsx"))
                             {
-                                string fname = "//srvprodbd-ds/ETL/RO_CONSOLIDADO/Archivos/" + "ROC-" + año + mes + ".xlsx"; 
+                                string fname = "//srvprodbd-ds/ETL/RO_CONSOLIDADO/Archivos/" + "ROC-" + año + mes + "01.xlsx"; 
                                 file.SaveAs(fname);
                                 string periodo = año + mes + "01";
 
-                                  SP_ETL(fname,año+mes);
+                               SP_ETL(fname,año+mes);
                             }
                             else {
                                 resultado = new Resultado();
                                 resultado.Código_resultado = "NotExcel";
                                 resultado.Detalle_resultado = "Sólo se admiten archivos de formato .xls o .xlsx (Archivos Excel)";
-
                                 return Json(resultado, JsonRequestBehavior.AllowGet);
                             }
                         }
@@ -257,11 +269,5 @@ namespace PowerBIEmbedded_AppOwnsData.Controllers
         {
             return Json("'Success':true");
         }
-
- 
-
     }
-
-   
-
 }

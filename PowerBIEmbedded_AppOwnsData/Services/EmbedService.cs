@@ -86,13 +86,111 @@ namespace PowerBIEmbedded_AppOwnsData.Services
 
                     if (report == null)
                     {
-                        m_embedConfig.ErrorMessage = "No report with the given ID was found in the workspace. Make sure ReportId is valid.";
+                        m_embedConfig.ErrorMessage = "No se encontró el reporte en el workspace establecido";
                         return false;
                     }
 
 
                     //object resultado = client.Datasets.RefreshDatasetInGroup("9ec2314f-7fb4-4483-a404-af50510e29ac", report.DatasetId);
+
+
+
                     var datasets =  client.Datasets.GetDatasetByIdInGroup(WorkspaceId, report.DatasetId);
+                    m_embedConfig.IsEffectiveIdentityRequired = datasets.IsEffectiveIdentityRequired;
+                    m_embedConfig.IsEffectiveIdentityRolesRequired = datasets.IsEffectiveIdentityRolesRequired;
+                    GenerateTokenRequest generateTokenRequestParameters;
+                    // This is how you create embed token with effective identities
+                    if (!string.IsNullOrWhiteSpace(username))
+                    {
+                        var rls = new EffectiveIdentity(username, new List<string> { report.DatasetId });
+                        if (!string.IsNullOrWhiteSpace(roles))
+                        {
+                            var rolesList = new List<string>();
+                            rolesList.AddRange(roles.Split(','));
+                            rls.Roles = rolesList;
+                        }
+                        // Generate Embed Token with effective identities.
+                        generateTokenRequestParameters = new GenerateTokenRequest(accessLevel: "view", identities: new List<EffectiveIdentity> { rls });
+                    }
+                    else
+                    {
+                        // Generate Embed Token for reports without effective identities.
+                        generateTokenRequestParameters = new GenerateTokenRequest(accessLevel: "view");
+                    }
+
+                    var tokenResponse = await client.Reports.GenerateTokenInGroupAsync(WorkspaceId, report.Id, generateTokenRequestParameters);
+
+                    if (tokenResponse == null)
+                    {
+                        m_embedConfig.ErrorMessage = "Failed to generate embed token.";
+                        return false;
+                    }
+
+                    // Generate Embed Configuration.
+                    m_embedConfig.EmbedToken = tokenResponse;
+                    m_embedConfig.EmbedUrl = report.EmbedUrl;
+                    m_embedConfig.Id = report.Id;
+                }
+            }
+            catch (HttpOperationException exc)
+            {
+                m_embedConfig.ErrorMessage = string.Format("Status: {0} ({1})\r\nResponse: {2}\r\nRequestId: {3}", exc.Response.StatusCode, (int)exc.Response.StatusCode, exc.Response.Content, exc.Response.Headers["RequestId"].FirstOrDefault());
+                return false;
+            }
+
+            return true;
+        }
+
+
+        public async Task<bool> EmbedReportWithRefresh(string username, string roles)
+        {
+
+            // Get token credentials for user
+            var getCredentialsResult = await GetTokenCredentials();
+            if (!getCredentialsResult)
+            {
+                // The error message set in GetTokenCredentials
+                return false;
+            }
+
+            try
+            {
+                // Create a Power BI Client object. It will be used to call Power BI APIs.
+                using (var client = new PowerBIClient(new Uri(ApiUrl), m_tokenCredentials))
+                {
+                    // Get a list of reports.
+                    var reports = await client.Reports.GetReportsInGroupAsync(WorkspaceId);
+
+                    // No reports retrieved for the given workspace.
+                    if (reports.Value.Count() == 0)
+                    {
+                        m_embedConfig.ErrorMessage = "No reports were found in the workspace";
+                        return false;
+                    }
+
+                    Report report;
+                    if (string.IsNullOrWhiteSpace(ReportId))
+                    {
+                        // Get the first report in the workspace.
+                        report = reports.Value.FirstOrDefault();
+                    }
+                    else
+                    {
+                        report = reports.Value.FirstOrDefault(r => r.Id.Equals(ReportId, StringComparison.InvariantCultureIgnoreCase));
+                    }
+
+                    if (report == null)
+                    {
+                        m_embedConfig.ErrorMessage = "No se encontró el reporte en el workspace establecido";
+                        return false;
+                    }
+
+
+                    object resultado = client.Datasets.RefreshDatasetInGroup("9ec2314f-7fb4-4483-a404-af50510e29ac", report.DatasetId);
+
+
+
+                    var datasets = client.Datasets.GetDatasetByIdInGroup(WorkspaceId, report.DatasetId);
                     m_embedConfig.IsEffectiveIdentityRequired = datasets.IsEffectiveIdentityRequired;
                     m_embedConfig.IsEffectiveIdentityRolesRequired = datasets.IsEffectiveIdentityRolesRequired;
                     GenerateTokenRequest generateTokenRequestParameters;

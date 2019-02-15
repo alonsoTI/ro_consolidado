@@ -16,5 +16,7 @@ namespace PowerBIEmbedded_AppOwnsData.Services
         Task<bool> EmbedReport(string userName, string roles);
         Task<bool> EmbedDashboard();
         Task<bool> EmbedTile();
+
+        Task<bool> EmbedReportWithRefresh(string userName, string roles);
     }
 }
